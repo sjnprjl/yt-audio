@@ -19,6 +19,23 @@ yt-audio [--add-link <OPTIONAL>] [--directory <OPTIONAL>] [--help]
  -a, --add-link:     Add link to songs.txt file (default: 'no default')
  -d, --directory:    Directory to save downloaded audio (default: './')	
 ```
+## EXAMPLE
+First add url: (add as many url you like)
+```bash
+yt-audio -a YOUTUBE_URL1
+yt-audio -a YOUTUBE_URL2
+...
+```
+Then:
+_if you want to specify directory_
+```bash
+yt-audio -d /path/to/dir
+```
+_if you don't want to specify directory_
+```bash
+yt-audio
+```
+**Above command will download audio in current directory**
 # TODO
 1. **_Stop writing shitty code(s)_**
 2. **_Try my best to stop writing shitty script(s)_**
