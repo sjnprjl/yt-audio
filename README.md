@@ -15,4 +15,4 @@
 2. **_Try my best to stop writing shitty script(s)_**
 3. **_Learn more and more.._**
 # THANK YOU
-``thank you for your precious time :blush:``
+`thank you for your precious time ` :blush: .
