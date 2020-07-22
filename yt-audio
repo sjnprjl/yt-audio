@@ -1,0 +1,150 @@
+#!/bin/bash
+SKIP_FILE="songs-skip.txt"
+SONG_LIST="songs.txt"
+TMP="tmp"
+LOG_FILE="log"
+
+rm -rf $LOG_FILE
+touch $SKIP_FILE $SONG_LIST
+if [[ -e $TMP ]]; then 
+    rm -rf $TMP
+    touch $TMP
+fi
+
+
+die()
+{
+	local _ret=$2
+	test -n "$_ret" || _ret=1
+	test "$_PRINT_HELP" = yes && print_help >&2
+	echo "$1" >&2
+	exit ${_ret}
+}
+begins_with_short_option() 
+{
+    local first_option = all_short_options='adh'
+    first_option="${1:0:1}"
+    test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+
+}
+#THE DEFAULTS INITIALIZATION - OPTIONALS
+_arg_add_link=
+_arg_directory=
+print_help()
+{
+	printf '%s\n' "yt-audio"
+	printf 'Usage: %s\n' "$0 [--add-link <OPTIONAL>] [--directory <OPTIONAL>] [--help]"
+	printf '\t%s\n' "-a, <OPTIONAL>,   --add-link , <OPTIONAL>: Add link to $SONG_LIST file (default: 'no default')"
+    printf '\t%s\n' "-d, <OPTIONAL>, --directory <OPTIONAL>: Directory to save downloaded audio (default: './')"
+	printf '\t%s\n' "-h, --help: Prints help"
+}
+
+add_link() {
+    is_ok=0
+    while read -r line; do
+        if [ $line = $1 ]; then
+           echo "$1 is already already in $SONG_LIST" 
+           is_ok=1
+           exit 1
+        fi 
+    done < $SONG_LIST
+    if [ $is_ok = 0 ]; then 
+        echo "$1" >> $SONG_LIST
+        echo "Added $1 to $SONG_LIST"
+    fi
+}
+download() {
+    while read -r line; do
+        if ! grep -q "$line" "$SKIP_FILE"; then
+            echo $line >> $TMP
+        fi
+    done < $SONG_LIST
+
+    if [ -s $TMP ]; then 
+        #youtube-dl --extract-audio --audio-format mp3 --add-metadata -o "%(title)s.%(ext)s" -a $TMP 2> $LOG_FILE
+        while read -r line; do
+            youtube-dl --extract-audio --audio-format mp3 --add-metadata -o "$1%(title)s.%(ext)s" $line 2> $LOG_FILE
+            if grep -q "ERROR:" $LOG_FILE; then 
+                cat $LOG_FILE
+                touch bckup
+                sed '/'$line'/d' $SONG_LIST > bckup && cp -r bckup $SONG_LIST && rm -rf bckup
+                echo "Sorry but task cannot be performed!"
+                rm -rf $LOG_FILE
+                rm -rf $TMP
+                exit  1
+            else
+                echo $line >> $SKIP_FILE
+                echo "Download sucessfull!"
+                rm -rf $LOG_FILE
+            fi
+        done < $TMP
+        rm -rf $TMP
+    else
+        echo "nothing to download!"
+    fi
+}
+
+parse_commandline() {
+    while test $# -gt 0
+    do 
+        _key="$1"
+
+        case "$_key" in 
+            -a | --add-link)
+                test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+                _arg_add_link="$2"
+                shift
+                ;;
+            --add-link=*)
+                _arg_add_link="${_key##--add-link}"
+                ;;
+            -a*)
+                _arg_add_link="${_key##-o}"
+                ;;
+            -d | --directory)
+                test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+                _arg_directory="$2"
+                shift
+                ;;
+            --directory=*)
+                _arg_directory="${_key##--directory=}"
+                ;;
+            -d*)
+                _arg_directory="${_key##-d}"
+                ;;
+            -h | --help)
+                print_help
+                exit 0
+                ;;
+            -h*)
+                print_help 
+                exit 0
+                ;;
+            *)
+                _PRINT_HELP=yes die "FATAL ERROR: Got an unexpected argument '$1'" 1
+                ;;
+        esac
+        shift
+    done 
+}
+
+parse_commandline "$@"
+
+if  [ -z "$_arg_add_link" ]
+then
+    if [ ! -z "$_arg_directory" ] 
+    then
+        download $_arg_directory
+    else 
+        download ""
+    fi
+else
+    add_link $_arg_add_link
+fi
+
+
+
+
+
+
+
