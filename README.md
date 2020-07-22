@@ -3,13 +3,15 @@
 ## DESCRIPTION
 > **yt-audio** is a simple script to download audio from YouTube.com and a few more sites. It uses **_youtube-dl_** program (**_so first install it_**).
 ## MAKE IT EXECUTABLE
-first clone this repo and:
+first clone this repo:
 ```bash
+git clone https://github.com/sujanp100/yt-audio.git
 cd yt-audio && chmod +x yt-audio
 ```
+
 ## USAGE:
 ```
-./yt-audio [--add-link <OPTIONAL>] [--directory <OPTIONAL>] [--help]``
+yt-audio [--add-link <OPTIONAL>] [--directory <OPTIONAL>] [--help]
 ```
 ## OPTIONS
 ```
