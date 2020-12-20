@@ -5,7 +5,7 @@
 ## MAKE IT EXECUTABLE
 first clone this repo:
 ```bash
-git clone https://github.com/sujanp100/yt-audio.git
+git clone https://github.com/ilvghst/yt-audio.git
 cd yt-audio && chmod +x yt-audio
 ```
 
